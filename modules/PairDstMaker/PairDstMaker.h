@@ -79,12 +79,18 @@ public:
 		MuonMVAFilter m_setup;
 		m_setup.loadVars( config, nodePath + ".MuonMVAFilter" );
 
-		for ( size_t i = 0; i < bins_pt_mva.nBins(); i++ ){
+		if ( mlp_template_str.find( "%" ) != string::npos ) {
+			for ( size_t i = 0; i < bins_pt_mva.nBins(); i++ ){
+				MuonMVAFilter m;
+				TString wf = TString::Format( mlp_template_str.c_str(), i );
+				TString n = TString::Format( "mlp_%zu", i );
+				m.load( string( wf ), string( n ) );
+				LOG_F( INFO, "Loading %s from %s", n.Data(), wf.Data() );
+				mlps.push_back( m );
+			}
+		} else {
 			MuonMVAFilter m;
-			TString wf = TString::Format( mlp_template_str.c_str(), i );
-			TString n = TString::Format( "mlp_%zu", i );
-			m.load( string( wf ), string( n ) );
-			LOG_F( INFO, "Loading %s from %s", n.Data(), wf.Data() );
+			m.load( mlp_template_str, "DNN" );
 			mlps.push_back( m );
 		}
 
@@ -199,7 +205,8 @@ protected:
 			int ipt1 = bins_pt_mva.findBin( p1._track->mPt );
 			if ( ipt1 < 0 ){
 				p1._pid = -999;
-				LOG_F( WARNING, "ipt1 = %d, pt = %f", ipt1, p1._track->mPt );
+				continue;
+				// LOG_F( WARNING, "ipt1 = %d, pt = %f", ipt1, p1._track->mPt );
 			} else {
 				MuonMVAFilter::fillVars( p1 );
 				p1._pid = mlps[ipt1].evaluate( p1 );
@@ -219,7 +226,8 @@ protected:
 				int ipt2 = bins_pt_mva.findBin( p2._track->mPt );
 				if ( ipt2 < 0 ){
 					p2._pid = -999;
-					LOG_F( WARNING, "ipt2 = %d, pt = %f", ipt2, p2._track->mPt );
+					continue;
+					// LOG_F( WARNING, "ipt2 = %d, pt = %f", ipt2, p2._track->mPt );
 				} else {
 					MuonMVAFilter::fillVars( p2 );
 					p2._pid = mlps[ipt2].evaluate( p2 );

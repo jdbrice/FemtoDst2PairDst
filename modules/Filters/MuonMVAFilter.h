@@ -87,6 +87,10 @@ public:
 		MVA_Charge = (Float_t)_proxy._track->charge();
 
 		MVA_dY *= MVA_Charge;
+		MVA_Cell = (MVA_Cell + 1) * MVA_Charge;
+
+		if ( MVA_Pt > 15.0 )
+			MVA_Pt = 15;
 
 		// LOG_F(INFO, "MVA_dY=%f", MVA_dY);
 		// LOG_F(INFO, "MVA_dZ=%f", MVA_dZ);
@@ -139,7 +143,7 @@ public:
 			if ( hasVar( "dca" ) )
 				reader->AddVariable( "dca := Tracks_mDCA", &MVA_DCA );
 			if ( hasVar( "Cell" ) )
-				reader->AddVariable( "Cell := MtdPidTraits_mCell", &MVA_Cell );
+				reader->AddVariable( "Cell := ((MtdPidTraits_mCell+1) * Tracks_mCharge)", &MVA_Cell );
 			if ( hasVar( "Module" ) )
 				reader->AddVariable( "Module := MtdPidTraits_mModule", &MVA_Module );
 			if ( hasVar( "BL" ) )
